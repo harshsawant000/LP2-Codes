@@ -1,0 +1,313 @@
+cc practical 3 
+
+-------------------------------------------------------------------------------------------------------------------
+Rohit - rohitraut78253954@agentforce.com
+pass : @Rohit1024
+
+Harsh - sawanth055750@agentforce.com
+pass - 1234@Harsh
+
+---------------------------------------------------------------------------------------------------------
+1.open site - 
+              a)sign up--  https://www.salesforce.com/form/developer-signup/?d=pb
+              b)login--    https://login.salesforce.com/
+
+
+
+2. Codes
+
+ Apex Calculator Program (Class)
+
+public class Calculator {
+    
+    // Method for Addition
+    public static Decimal add(Decimal a, Decimal b) {
+        return a + b;
+    }
+    
+    // Method for Subtraction
+    public static Decimal subtract(Decimal a, Decimal b) {
+        return a - b;
+    }
+    
+    // Method for Multiplication
+    public static Decimal multiply(Decimal a, Decimal b) {
+        return a * b;
+    }
+    
+    // Method for Division with zero check
+    public static Decimal divide(Decimal a, Decimal b) {
+        if (b == 0) {
+            System.debug('Error: Division by zero');
+            return null;
+        }
+        return a / b;
+    }
+}
+
+run it:-
+
+ Decimal num1 = 20;
+ Decimal num2 = 10;
+ System.debug('Addition: ' + Calculator.add(num1, num2));
+ System.debug('Subtraction: ' + Calculator.subtract(num1, num2));
+ System.debug('Multiplication: ' + Calculator.multiply(num1, num2));
+ System.debug('Division: ' + Calculator.divide(num1, num2));
+
+
+Apex Code: Fibonacci Series Generator
+
+public class FibonacciSeries {
+    
+    // Method to generate and print Fibonacci series
+    public static void generateFibonacci(Integer terms) {
+        if (terms <= 0) {
+            System.debug('Please enter a positive number of terms.');
+            return;
+        }
+
+        Integer first = 0;
+        Integer second = 1;
+        System.debug('Fibonacci Series up to ' + terms + ' terms:');
+        
+        for (Integer i = 1; i <= terms; i++) {
+            System.debug(first);
+            Integer next = first + second;
+            first = second;
+            second = next;
+        }
+    }
+}
+
+run it:-
+
+Integer numberOfTerms = 10; // You can change this value
+FibonacciSeries.generateFibonacci(numberOfTerms);
+
+
+Apex Code: Contact-Opportunity Mapper
+
+public class ContactO {
+	// Method to map Opportunities to their related Contacts
+    public static void mapContactsToOpportunities() {
+        // Query Opportunities with related OpportunityContactRoles and Contacts
+        List<Opportunity> oppList = [
+            SELECT Id, Name,
+                (SELECT ContactId, Contact.Name, Role FROM OpportunityContactRoles)
+            FROM Opportunity
+            WHERE Id IN (SELECT OpportunityId FROM OpportunityContactRole)
+            LIMIT 10
+        ];
+
+        // Process and log mapping
+        for (Opportunity opp : oppList) {
+            System.debug('Opportunity: ' + opp.Name);
+            for (OpportunityContactRole ocr : opp.OpportunityContactRoles) {
+                System.debug('--> Contact: ' + ocr.Contact.Name + 
+                             ', Role: ' + ocr.Role);
+            }
+        }
+    }
+}
+
+run it:-
+
+// Step 1: Create Account
+Account acc = new Account(Name = 'Test Account For Mapping');
+insert acc;
+
+// Step 2: Create Contact linked to Account
+Contact con = new Contact(FirstName = 'Jane', LastName = 'Doe', Email = 'jane.doe@example.com', AccountId = acc.Id);
+insert con;
+
+// Step 3: Create Opportunity linked to Account
+Opportunity opp = new Opportunity(
+    Name = 'Sample Deal',
+    StageName = 'Prospecting',
+    CloseDate = Date.today().addDays(30),
+    AccountId = acc.Id
+);
+insert opp;
+
+// Step 4: Link Contact to Opportunity via OpportunityContactRole
+OpportunityContactRole ocr = new OpportunityContactRole(
+    OpportunityId = opp.Id,
+    ContactId = con.Id,
+    Role = 'Decision Maker',
+    IsPrimary = true
+);
+insert ocr;
+
+// Step 5: Call the mapper method to print results
+ContactO.mapContactsToOpportunities();
+
+
+
+Apex Code to Generate Custom Report for Opportunities:
+
+public class OpportunityReport {
+
+    // Method to generate custom report
+    public static String generateOpportunityReport() {
+        // Query Opportunities with probability greater than 50%, sorted by CloseDate
+        List<Opportunity> oppList = [
+            SELECT Id, Name, Probability, CloseDate, StageName, Amount
+            FROM Opportunity
+            WHERE Probability > 50
+            ORDER BY CloseDate ASC
+        ];
+
+        // If no opportunities are found
+        if (oppList.isEmpty()) {
+            return 'No Opportunities with Probability greater than 50% were found.';
+        }
+
+        // Initialize report as a formatted string
+        String report = 'Opportunity Report: \n\n';
+        report += 'Opportunity Name | Probability | Close Date | Stage | Amount\n';
+        report += '------------------------------------------------------------\n';
+
+        // Loop through opportunities and format the output
+        for (Opportunity opp : oppList) {
+            report += opp.Name + ' | ' + opp.Probability + '% | ' + opp.CloseDate.format() + ' | ' + opp.StageName + ' | $' + opp.Amount.format() + '\n';
+        }
+
+        return report;
+    }
+}
+
+
+run it:-
+
+String report = OpportunityReportGenerator.generateOpportunityReport();
+System.debug(report);
+
+
+
+Apex Program: CRUD Operations on Standard Salesforce Objects (Account, Contact, Opportunity)
+
+public class CRUDOperations {
+
+	Account existing = [SELECT Id FROM Account WHERE Name = 'Sample Account' LIMIT 1];
+    if (existing != null) {
+        System.debug('Account already exists. Skipping creation.');
+        return;
+    
+    
+    // CREATE: Create a new Account, Contact, and Opportunity
+    public static void createAccountContactOpportunity() {
+        // Create Account
+        Account acc = new Account(
+            Name = 'Sample Account',
+            Industry = 'Technology',
+            Phone = '123-456-7890'
+        );
+        insert acc; // Insert Account record
+        
+        System.debug('Account Created: ' + acc);
+        
+        // Create Contact associated with Account
+        Contact con = new Contact(
+            FirstName = 'John',
+            LastName = 'Doe',
+            Email = 'john.doe@example.com',
+            Phone = '987-654-3210',
+            AccountId = acc.Id // Link the Contact to Account
+        );
+        insert con; // Insert Contact record
+        
+        System.debug('Contact Created: ' + con);
+        
+        // Create Opportunity associated with Account
+        Opportunity opp = new Opportunity(
+            Name = 'Sample Opportunity',
+            StageName = 'Prospecting',
+            CloseDate = Date.today().addMonths(1),
+            AccountId = acc.Id // Link the Opportunity to Account
+        );
+        insert opp; // Insert Opportunity record
+        
+        System.debug('Opportunity Created: ' + opp);
+    }
+    
+    // READ: Fetch and display Account, Contact, and Opportunity data
+    public static void readRecords() {
+        // Get Accounts
+        List<Account> accounts = [SELECT Id, Name, Industry, Phone FROM Account LIMIT 5];
+        System.debug('Accounts: ' + accounts);
+        
+        // Get Contacts
+        List<Contact> contacts = [SELECT Id, FirstName, LastName, Email, Phone FROM Contact LIMIT 5];
+        System.debug('Contacts: ' + contacts);
+        
+        // Get Opportunities
+        List<Opportunity> opportunities = [SELECT Id, Name, StageName, CloseDate FROM Opportunity LIMIT 5];
+        System.debug('Opportunities: ' + opportunities);
+    }
+    
+    // UPDATE: Update a specific Account, Contact, and Opportunity
+    public static void updateRecords() {
+        // Find the first Account, Contact, and Opportunity
+        Account accToUpdate = [SELECT Id, Name FROM Account LIMIT 1];
+        Contact conToUpdate = [SELECT Id, FirstName, LastName FROM Contact LIMIT 1];
+        Opportunity oppToUpdate = [SELECT Id, Name, StageName FROM Opportunity LIMIT 1];
+        
+        // Update Account
+        accToUpdate.Name = 'Updated Account Name';
+        update accToUpdate;
+        System.debug('Account Updated: ' + accToUpdate);
+        
+        // Update Contact
+        conToUpdate.LastName = 'Updated Last Name';
+        update conToUpdate;
+        System.debug('Contact Updated: ' + conToUpdate);
+        
+        // Update Opportunity
+        oppToUpdate.StageName = 'Negotiation/Review';
+        update oppToUpdate;
+        System.debug('Opportunity Updated: ' + oppToUpdate);
+    }
+    
+    // DELETE: Delete a specific Account, Contact, and Opportunity
+    public static void deleteRecords() {
+        // Find the first Account, Contact, and Opportunity
+        Account accToDelete = [SELECT Id FROM Account LIMIT 1];
+        Contact conToDelete = [SELECT Id FROM Contact LIMIT 1];
+        Opportunity oppToDelete = [SELECT Id FROM Opportunity LIMIT 1];
+        
+        // Delete Account
+        delete accToDelete;
+        System.debug('Account Deleted');
+        
+        // Delete Contact
+        delete conToDelete;
+        System.debug('Contact Deleted');
+        
+        // Delete Opportunity
+        delete oppToDelete;
+        System.debug('Opportunity Deleted');
+    }
+}
+
+
+
+run it:-
+
+// Call the CREATE operation
+CRUDOperations.createAccountContactOpportunity();
+
+// Call the READ operation
+CRUDOperations.readRecords();
+
+// Call the UPDATE operation
+CRUDOperations.updateRecords();
+
+// Call the DELETE operation
+CRUDOperations.deleteRecords();
+
+
+
+
+
+
+
